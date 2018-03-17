@@ -821,7 +821,7 @@ trackfilter_synth()
   double last_course_lon;
   double last_speed_lat;
   double last_speed_lon;
-  time_t last_speed_time;
+  long last_speed_time;
   int first;
   fix_type fix;
   int nsats = 0;
@@ -853,7 +853,7 @@ trackfilter_synth()
         last_course_lon = wpt->longitude;
         last_speed_lat = wpt->latitude;
         last_speed_lon = wpt->longitude;
-        last_speed_time = wpt->GetCreationTime().toTime_t();
+        last_speed_time = wpt->GetCreationTime().toMSecsSinceEpoch();
       } else {
         if (opt_course) {
           WAYPT_SET(wpt, course, heading_true_degrees(RAD(last_course_lat),
@@ -863,7 +863,7 @@ trackfilter_synth()
           last_course_lon = wpt->longitude;
         }
         if (opt_speed) {
-          if (last_speed_time != wpt->GetCreationTime().toTime_t()) {
+          if (last_speed_time != wpt->GetCreationTime().toMSecsSinceEpoch()) {
             // If we have mutliple points with the same time and
             // we use the pair of points about which the time ticks then we will
             // underestimate the distance and compute low speeds on average.
@@ -876,10 +876,10 @@ trackfilter_synth()
                                                 RAD(last_speed_lat), RAD(last_speed_lon),
                                                 RAD(wpt->latitude),
                                                 RAD(wpt->longitude))) /
-                      labs(wpt->GetCreationTime().toTime_t()-last_speed_time));
+                      (labs(wpt->GetCreationTime().toMSecsSinceEpoch()-last_speed_time) / 1000.0));
             last_speed_lat = wpt->latitude;
             last_speed_lon = wpt->longitude;
-            last_speed_time = wpt->GetCreationTime().toTime_t();
+            last_speed_time = wpt->GetCreationTime().toMSecsSinceEpoch();
           } else {
             WAYPT_UNSET(wpt, speed);
           }
